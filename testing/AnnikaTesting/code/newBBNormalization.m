@@ -34,24 +34,18 @@ Mbb_norm = log10(Mbb);
 norm_time_interval = find(tt>-.1 & tt<0);
 
 % This is where the normal values will be stored 
-New_Mbb_Norm = zeros(size(Mbb_norm));
+New_Mbb_Norm = zeros(size(Mbb_norm), 'single');
 
-for ch=1:length([all_channels.name])
-
-    currentChannel_idx = ch
+for ch=1:length([all_channels.name]) 
 
     for im=1:length(shared_idx)
 
-        imageidxs = im;
-
         if rem(im, 10) == 0
-            ch
-            im
-
+            fprintf('Channel: %d, Image: %d\n', ch, im);
         end
 
         %finds BB values of the current channel and image
-        Mbb_norm_image = squeeze(Mbb_norm(currentChannel_idx, :, imageidxs));
+        Mbb_norm_image = squeeze(Mbb_norm(ch, :, im));
         
         %finds BB values over the baseline period for the image
         Mbb_norm_tt = Mbb_norm_image(norm_time_interval);
@@ -70,6 +64,7 @@ for ch=1:length([all_channels.name])
 
 end
 
+%Lets the user know that the program is complete.
 fprintf(append("Normalization of subject-", subject, " complete."));
 
 %Easy way to check the graph of the new normalized data:
