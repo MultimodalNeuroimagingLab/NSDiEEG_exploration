@@ -1,5 +1,5 @@
 function varargout=plotBB_SinglePhoto(subject, sharedimageidx, repeatnum, ...
-    channelnum,ttmin, ttmax)
+    channelnum,ttmin, ttmax, loadBB)
 
 %% SinglePhotoBBGraph graphs the broadband values of a specific image
 
@@ -16,7 +16,7 @@ function varargout=plotBB_SinglePhoto(subject, sharedimageidx, repeatnum, ...
     input = localDataPath.BBData;
 
 %% Loads Variables and NORMALIZED broadband data
-    
+if loadBB == 1    
     % Choose an analysis type:
     desc_label = 'EachImage';
      
@@ -28,7 +28,7 @@ function varargout=plotBB_SinglePhoto(subject, sharedimageidx, repeatnum, ...
     % extract relevant information from events file:
     sel_events = eventsST;
     [events_status,nsd_idx,shared_idx,nsd_repeats] = ieeg_nsdParseEvents(sel_events);
-
+end
  %%
  if ~isnumeric(sharedimageidx)
        sharedimageidx = str2double(sharedimageidx);
