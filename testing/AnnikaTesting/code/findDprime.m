@@ -1,7 +1,7 @@
 %% This will find the D Prime values between one folder of images and one or more folders
 
 clear;
-
+%%
 localDataPath = setLocalDataPath(1);
 
 %path to the folder containing folders of different types of broadband data
@@ -19,46 +19,43 @@ N=length(OtherFolders);
 subject='13';
 
 %Channel to be tested
-channel = {"RLS1"};
-channelcurrent = channel{1};
+channel = {"RLS1", "RLS2", "RLI1", "RLI2","RLI3","RLI4","RLI5","RLI6","RLM4", "RLM5", "RLM8","RLM9","RLM10"};
 
 %The range of time that will be meaned
-meanttmin = 0;
-meanttmax = 0.8;
+meanttmin = 0.0;
+meanttmax = 0.4;
 
 
 
 
-%% Loads Variables and normalized broadband data
+%% Loads Variables and NORMALIZED broadband data
     
-    subjects = {subject};%0654
     % Choose an analysis type:
     desc_label = 'EachImage';
      
-    ss = 1;
-    subj = subjects{ss};
-
     % Load normalized NSD-iEEG-broadband data
     Path_Mbb_Norm = fullfile(input,'Mbb_Norm_vars', ['sub-' subject],...
     ['sub-' subject '_normalizedMbb' desc_label '_ieeg.mat']);
+    
+    fprintf("Loading Normalized Broadband Data...")
     load(Path_Mbb_Norm)
-
-
- %% Load Variables
-    sel_events = eventsST;
- 
+  
+    fprintf("Loading variables...")
     % extract relevant information from events file:
+    sel_events = eventsST;
     [events_status,nsd_idx,shared_idx,nsd_repeats] = ieeg_nsdParseEvents(sel_events);
 
-
-
+    fprintf("Everything has loaded.")
 
 %% Actual Program
-    
-    channelIdx = find(ismember([all_channels.name],channelcurrent));
+clearvars d
+for j = 1:length(channel)
+    % States which channel it is currently processing
+    currentchannel = channel{j};
+    channelIdx = find(ismember([all_channels.name],currentchannel));
 
     %Gets the mean of the images in the selected folder over the selected time period
-    [folderMeanBB,folderSTD_BB] = dPrimeAverageBB(folderName, channelIdx, ...
+    [folderMeanBB,folderSTD_BB, foldervar] = dPrimeAverageBB(folderName, channelIdx, ...
         meanttmin, meanttmax, tt, shared_idx, New_Mbb_Norm, nsd_repeats);  
     
 
@@ -66,25 +63,25 @@ meanttmax = 0.8;
    StdOtherFolderValues = [];
     %Gets the mean of the images in the selected folder over the selected time period
     for i=1:length(OtherFolders)
-        [notFolderMeanBB,notfolderSTD_BB] = dPrimeAverageBB(OtherFolders{i}, channelIdx, ...
+        [notFolderMeanBB,notfolderSTD_BB, notfoldervar] = dPrimeAverageBB(OtherFolders{i}, channelIdx, ...
         meanttmin, meanttmax, tt, shared_idx, New_Mbb_Norm, nsd_repeats); 
 
         MeanOtherFolderValues(i) = notFolderMeanBB;
-        StdOtherFolderValues(i) = notfolderSTD_BB;
+        varOtherFolderValues(i) = notfoldervar;
     end
      
     
     numeratorSum = sum(MeanOtherFolderValues, "all");
 
-    denominatorSum = sum((StdOtherFolderValues.^2), "all");
+    denominatorSum = sum((varOtherFolderValues), "all");
 
     numerator = folderMeanBB - (1/N)*(numeratorSum);
 
-    denominator = sqrt((1/2)*((folderSTD_BB.^2)+((1/N)*(denominatorSum))));
+    denominator = sqrt(0.5*((foldervar)+((1/N)*(denominatorSum))));
 
-    d = numerator/denominator;
-
-    fprintf("The d' value is: ");
-    d
-
+    d(j, :) = numerator/denominator;
     
+    fprintf(append("The d' value for ", currentchannel, " is: "));
+    d(j, 1)
+
+end
