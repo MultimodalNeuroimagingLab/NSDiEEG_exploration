@@ -1,4 +1,4 @@
-function [meanavgBB,standardDeviation] = dPrimeAverageBB( ...
+function [meanavgBB,standardDeviation, variance] = dPrimeAverageBB( ...
     folderName, channelcurrent, meanttmin, meanttmax, ...
     tt, shared_idx, New_Mbb_Norm, nsd_repeats)  
 %dPrimeAverageBB returns the mean and standard devation of the broadband
@@ -32,7 +32,7 @@ function [meanavgBB,standardDeviation] = dPrimeAverageBB( ...
     %}
 
     %Creates average BB between ttmin and ttmax for each image 
-    avgBB = mean(ttNormalizedBBValues,1);
+    avgBB = mean(ttNormalizedBBValues,1, 'omitnan');
     
     %{
     %Finds the standard deviation of all broadband values between 
@@ -45,8 +45,9 @@ function [meanavgBB,standardDeviation] = dPrimeAverageBB( ...
 
     %Takes the standard deviation of the means of each image
     standardDeviation = std(avgBB);
+    variance = var(avgBB, 1, 'omitnan');
 
-    %Returns the mean from t=meanttmin to t=meanttmax
+    %Returns the mean of all the images from ttmin to ttmaz
     meanavgBB=mean(avgBB);
 
 end 
