@@ -94,7 +94,7 @@ nsd_repeats_Array = cell(1, length(subject));
 
 for sub=1:length(subject)
     
-    currentsubject = subject(sub);
+    currentsubject = subject{sub};
     currentsubject
 
     % Choose an analysis type:
@@ -106,15 +106,15 @@ for sub=1:length(subject)
     
     fprintf("Loading Normalized Broadband Data...")
     load(Path_Mbb_Norm)
-    MbbArray{i} = Mbb_Norm_perRun;
-    ttArray{i} = tt;
-    all_channels_array{i} = all_channels;
-    srate_array{i} = srate;
+    MbbArray{sub} = Mbb_Norm_perRun;
+    ttArray{sub} = tt;
+    all_channels_array{sub} = all_channels;
+    srate_array{sub} = srate;
 
     fprintf("Loading variables...")
     % extract relevant information from events file:
     sel_events = eventsST;
-    [events_status_Array{i},nsd_idx_Array{i},shared_idx_Array{i},nsd_repeats_Array{i}] = ieeg_nsdParseEvents(sel_events);
+    [events_status_Array{sub},nsd_idx_Array{sub},shared_idx_Array{sub},nsd_repeats_Array{sub}] = ieeg_nsdParseEvents(sel_events);
 
     fprintf("Everything has loaded.")
 
@@ -129,6 +129,8 @@ meanresults = zeros(length(channel), length(folderName), length(subject));
 peakresults = zeros(length(channel), length(folderName), length(subject));
 
 for k=1:length(subject)
+    subject{k}
+
     %Assigns all variables to the current subject
     Mbb = MbbArray{k};
     tt=ttArray{k};
@@ -139,11 +141,12 @@ for k=1:length(subject)
     shared_idx = shared_idx_Array{k};
     nsd_repeats = nsd_repeats_Array{k};     
 
-    
+    subChannel = channel{k};
+
     % Calls the folderAverageBBfunction for each given electrode and folder
-    for i = 1:length(channel)
+    for i = 1:length(subChannel)
         % States which channel it is currently processing
-        currentchannel = channel{i}
+        currentchannel = subChannel{i}
         
         %finds the current channel
         channelidx = find(ismember([all_channels.name],currentchannel));
@@ -162,7 +165,7 @@ for k=1:length(subject)
             
             % Finds the average broadband values of the folder
             [folderBB, folderStE] = BBAverageImageFolder(currentFolder,...
-                NotFolder, channelBBvalues, shared_idx_Array,nsd_repeats_Array, imageFolderPath);
+                NotFolder, channelBBvalues, shared_idx, nsd_repeats, imageFolderPath);
             
      
             if findmean == 1 

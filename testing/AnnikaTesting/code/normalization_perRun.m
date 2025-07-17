@@ -1,5 +1,6 @@
-%% Creates normalized data that is then stored in New_Mbb_Norm 
-% The data is normalized by each individual image shown (1530 times)
+%% Creates normalized data that is then stored in Mbb_Norm_perRun 
+% The data is normalized by run (1530 times)
+% The code for the actual normalization process is Morgan's code.
 
 clear;
 

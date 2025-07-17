@@ -9,17 +9,18 @@ input = localDataPath.BBData;
 
 
 %folder to be compared
-folderName = "Experiment8PeopleInteracting";
+folderName = "GroupPeople"; 
+%{'GroupPeople', 'SinglePerson', 'Random'};
 
 % folders to which the main folder is being compared
-OtherFolders = {'Experiment8NotPeople'};
+OtherFolders = {'SinglePerson'};
 N=length(OtherFolders);
 
 %Subject to be used
 subject='13';
 
 %Channel to be tested
-channel = {"RLS1", "RLS2", "RLI1", "RLI2","RLI3","RLI4","RLI5","RLI6","RLM4", "RLM5", "RLM8","RLM9","RLM10"};
+channel = {"LOC6", "LOC7", "LOC8"};
 
 %The range of time that will be meaned
 meanttmin = 0.0;

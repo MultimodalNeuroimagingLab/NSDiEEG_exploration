@@ -39,16 +39,26 @@ meanttmax = 0.4;
 
 
 %folders of images to be averaged
-folderName =  {'Experiment8PeopleInteracting', 'Experiment8NotPeople'};
+folderName = {'Experiment6HumanInteractions', 'Experiment6Food', 'Experiment6Buildings', 'Experiment6AnimalHumanInteraction'};
 
 %Subject to be used
-subject='20';                      
+subject='02';                      
 
 %Channels to be tested
-channel =  {"LOC12", "LOC13"};
+channel =  {"LOC6","LOC7", "LOC8"};
 
 %Colors for each graph (in the same order as the list)
-colors = {'-b', '-r'};
+colors = {'-b', '-r', '-y', 'g'};
+legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00; 1.00, 1.00, 0.00; 0.00, 1.00, 0.00];
+%{
+colors = {'-b', 'g', '-c', '-m', '-r', '-y'};
+legendcolor = [0.00, 0.00, 1.00; 0.00, 1.00, 0.00; 0.00, 1.00, 1.00; ...
+    1.00, 0.00, 1.00; 1.00, 0.00, 0.00; 1.00, 1.00, 0.00];
+
+colors = {'-b', '-k', '-r' };
+legendcolor = [0.00, 0.00, 1.00; 0.00, 0.00, 0.00;1.00, 0.00, 0.00];
+%}
+
 
 %0 to create a separate graph for each electrode, 1 to graph all on one.
 allElectrode = 0;
@@ -75,6 +85,7 @@ NotFolder = 0;
     [events_status,nsd_idx,shared_idx,nsd_repeats] = ieeg_nsdParseEvents(sel_events);
 
     fprintf("Everything has loaded.")
+
 %% Actual Process
 %Stores the average BB results of each time point in the folders
 BBvaluesOverTime = zeros(length(folderName),length(tt), length(channel));
@@ -96,7 +107,7 @@ for i = 1:length(channel)
     %finds BBValues of all the images in the channel
     channelBBvalues = permute(New_Mbb_Norm(channelidx, :, :), [2 3 1]);
 
-    if allElectrode == 0
+    if (allElectrode == 0) && (plotBBvalues == 1)
         figure;
     end
 
@@ -146,17 +157,40 @@ for i = 1:length(channel)
     end
     
     if (plotBBvalues == 1) && ((allElectrode == 0) || (length(channel)==1))
-        legend(folderName)
+        hold on
+
+        % Preallocate handles for the legend
+        handles = gobjects(length(folderName), 1);
+        
+        for i = 1:length(folderName)
+            % Create dummy plots for the legend only
+            handles(i) = plot(NaN, NaN, 'LineWidth', 2, 'Color', legendcolor(i,:));
+        end
+
+        % Create legend using the folder names
+        legend(handles, folderName, 'Location', 'best');
+
+        %Creates title
         title(append("Folder Comparison, Subject-", subject, ": ", currentchannel))
 
-    else
-        legend(folderName)
-        title(append("Folder Comparison, Subject-", subject, ": muliple channels"))
+    elseif (plotBBvalues == 1)
+        hold on
+
+        % Preallocate handles for the legend
+        handles = gobjects(length(folderName), 1);
+        
+        for i = 1:length(folderName)
+            % Create dummy plots for the legend only
+            handles(i) = plot(NaN, NaN, 'LineWidth', 2, 'Color', legendcolor(i,:));
+        end
+
+        % Create legend using the folder names
+        legend(handles, folderName, 'Location', 'best');
+
+        %Creates title
+        title(append("Folder Comparison, Subject-", subject, ": multiple channels"))
     end
-
-    
-    
-
+    ylim([-0.1,1]);
 
 end
 
