@@ -9,18 +9,18 @@ input = localDataPath.BBData;
 
 
 %folder to be compared
-folderName = "GroupPeople"; 
+folderName = "Experiment8PeopleInteracting"; 
 %{'GroupPeople', 'SinglePerson', 'Random'};
 
 % folders to which the main folder is being compared
-OtherFolders = {'SinglePerson'};
+OtherFolders = {'Experiment8NotPeople'};
 N=length(OtherFolders);
 
 %Subject to be used
 subject='13';
 
 %Channel to be tested
-channel = {"LOC6", "LOC7", "LOC8"};
+channel = {"RLS1","RLS2","RLI1"};
 
 %The range of time that will be meaned
 meanttmin = 0.0;
@@ -32,10 +32,10 @@ meanttmax = 0.4;
 %% Loads Variables and NORMALIZED broadband data
     
     % Choose an analysis type:
-    desc_label = 'EachImage';
+    desc_label = 'PerRun';
      
     % Load normalized NSD-iEEG-broadband data
-    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_vars', ['sub-' subject],...
+    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_PerRun', ['sub-' subject],...
     ['sub-' subject '_normalizedMbb' desc_label '_ieeg.mat']);
     
     fprintf("Loading Normalized Broadband Data...")
@@ -57,7 +57,7 @@ for j = 1:length(channel)
 
     %Gets the mean of the images in the selected folder over the selected time period
     [folderMeanBB,folderSTD_BB, foldervar] = dPrimeAverageBB(folderName, channelIdx, ...
-        meanttmin, meanttmax, tt, shared_idx, New_Mbb_Norm, nsd_repeats);  
+        meanttmin, meanttmax, tt, shared_idx, Mbb_Norm_perRun, nsd_repeats);  
     
 
    MeanOtherFolderValues = [];
@@ -65,7 +65,7 @@ for j = 1:length(channel)
     %Gets the mean of the images in the selected folder over the selected time period
     for i=1:length(OtherFolders)
         [notFolderMeanBB,notfolderSTD_BB, notfoldervar] = dPrimeAverageBB(OtherFolders{i}, channelIdx, ...
-        meanttmin, meanttmax, tt, shared_idx, New_Mbb_Norm, nsd_repeats); 
+        meanttmin, meanttmax, tt, shared_idx, Mbb_Norm_perRun, nsd_repeats); 
 
         MeanOtherFolderValues(i) = notFolderMeanBB;
         varOtherFolderValues(i) = notfoldervar;

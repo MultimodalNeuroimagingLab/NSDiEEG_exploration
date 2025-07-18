@@ -4,16 +4,10 @@
 % and mean are between user-specified time points. This program can loop 
 % through multiple electrodes or folders.
 
-%There are three versions of this script
-    % AutoFolderAverageBB: loads normalized AND preproc data
-    % (uses pre-proc data to load EventsST, tt, and all_channels which is 
-    % not included in New_Mbb_Norm)
-
-    % NormAutoFolderAverageBB: Only loads normalized (EventsST, tt, and all_channels 
-    % are within the normalized data upload)
-
-    % (current) ImageFolderAnalysis: Same as NormAutoFolderAverageBB, but organized
-    % better and easier to understand
+%This is a version of ImageFolderAnalysis that can run through multiple
+%subjects. Further, it automatically calculates dprime values when there
+%are only two folders (The first folder will be the main folder and the 
+% second will be the "other" folder).
 
 
 clear;
@@ -39,25 +33,20 @@ meanttmax = 0.4;
 
 
 %folders of images to be averaged
-folderName = {'Experiment6HumanInteractions', 'Experiment6Food', 'Experiment6Buildings', 'Experiment6AnimalHumanInteraction'};
-%{'GroupPeople', 'SinglePerson', 'Random'};
-%{'Experiment8PeopleInteracting', 'Experiment8NotPeople'};
-%{'AllPeople', 'NoPeople'};
-%{'GroupPeople', 'PairPeople', 'SinglePerson', 'Food', 'Random', 'Buildings'};
-
+folderName = {'Experiment8PeopleInteracting', 'Experiment8NotPeople'};
 
 %Subject to be used
 subject={'02', '13', '15', '20'};                      
 
 %Channels to be tested
 %Put the channels from each subject into different rows.
-channel =  {["LOC6","LOC7", "LOC8"],... 
+channel =  {["LG6", "LG7", "LG8", "LB6", "LB7", "LB8", "LC2" ...
+    "LC6", "LC7", "LT6", "LT7", "LT8", "LT9", ...
+    "LOC6", "LOC7", "LOC8"],... 
     ["RLS1", "RLS2", "RLI1", "RLI2","RLI3","RLI4","RLI5","RLI6","RLM4", "RLM5", "RLM8","RLM9","RLM10"],...
     ["RPO1","RPO2","RPO3","RPO4","RPO5","RPA1","RPA2","RPA3","RPA4","RPA5"],...
-    ["LOC12", "LOC13"]};
-
-
-
+    ["LC5","LC6","LT2","LT3","LT4","LT5","LT7","LOC1", "LOC2", "LOC3",...
+"LOC6","LOC7","LOC8","LOC9","LOC12", "LOC13","LD1", "LD2", "LD3", "LD4", "LD5", "LD6"]};
 
 %Colors for each graph (in the same order as the list)
 
@@ -120,7 +109,7 @@ for sub=1:length(subject)
 
 end
 %% Actual Process
-clearvars tt Mbb all_channels srate nsd_idx shared_idx nsd_repeats
+clearvars tt Mbb all_channels srate nsd_idx shared_idx nsd_repeats dprime
 
 %Stores mean results, columns are folders and rows are electrodes
 meanresults = zeros(length(channel), length(folderName), length(subject));
@@ -128,8 +117,13 @@ meanresults = zeros(length(channel), length(folderName), length(subject));
 %Stores peak results, columns are folders and rows are electrodes
 peakresults = zeros(length(channel), length(folderName), length(subject));
 
+% Preallocates the size of the dprime folder
+if length(folderName) == 2
+    dprime = zeros(length(channel), length(subject));
+end
+
 for k=1:length(subject)
-    subject{k}
+    fprintf('The current subject is sub-%s\n', subject{k});
 
     %Assigns all variables to the current subject
     Mbb = MbbArray{k};
@@ -195,7 +189,12 @@ for k=1:length(subject)
     
             end
            
-        
+            %Calculates the d prime values
+            if length(folderName) == 2
+                [dprime(i,k)] = DprimeFunction(folderName{1}, folderName{2}, channelidx, ...
+                    tt, shared_idx, Mbb, nsd_repeats, meanttmin, meanttmax);
+            end
+
         end
         
         if (plotBBvalues == 1) && ((allElectrode == 0) || (length(channel)==1))
@@ -225,7 +224,7 @@ for k=1:length(subject)
                 % Create dummy plots for the legend only
                 handles(i) = plot(NaN, NaN, 'LineWidth', 2, 'Color', legendcolor(i,:));
             end
-    
+     
             % Create legend using the folder names
             legend(handles, folderName, 'Location', 'best');
     
