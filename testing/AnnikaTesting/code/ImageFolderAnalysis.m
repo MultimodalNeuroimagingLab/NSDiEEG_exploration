@@ -4,7 +4,7 @@
 % and mean are between user-specified time points. This program can loop 
 % through multiple electrodes or folders.
 
-%There are three versions of this script
+%There are four versions of this script
     % AutoFolderAverageBB: loads normalized AND preproc data
     % (uses pre-proc data to load EventsST, tt, and all_channels which is 
     % not included in New_Mbb_Norm)
@@ -14,6 +14,10 @@
 
     % (current) ImageFolderAnalysis: Same as NormAutoFolderAverageBB, but organized
     % better and easier to understand
+
+    % RECOMMENDED:
+    % ImageFolderAnalysis_SubjectLoop: Same as ImageFolderAnalysis, but 
+    % is able to loop through multiple subjects. It can also calculates d'
 
 
 clear;
@@ -34,23 +38,26 @@ graphttmax = 0.8;
 
 % 1 to find mean of BB values over meanttmin to meanttmax, 0 to skip
 findmean = 1;         
-meanttmin = 0;
-meanttmax = 0.4;
+meanttmin = 0.4;
+meanttmax = 0.8;
 
 
 %folders of images to be averaged
-folderName = {'Experiment6HumanInteractions', 'Experiment6Food', 'Experiment6Buildings', 'Experiment6AnimalHumanInteraction'};
+folderName = {'People', 'NoPeople'};
 
 %Subject to be used
-subject='02';                      
+subject='15';                      
 
 %Channels to be tested
-channel =  {"LOC6","LOC7", "LOC8"};
+channel = {"RPO1","RPO2","RPO3","RPO4","RPO5","RPA1","RPA2","RPA3","RPA4","RPA5"};
 
 %Colors for each graph (in the same order as the list)
+colors = {'-b', '-r'};
+legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00];
+%{
 colors = {'-b', '-r', '-y', 'g'};
 legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00; 1.00, 1.00, 0.00; 0.00, 1.00, 0.00];
-%{
+
 colors = {'-b', 'g', '-c', '-m', '-r', '-y'};
 legendcolor = [0.00, 0.00, 1.00; 0.00, 1.00, 0.00; 0.00, 1.00, 1.00; ...
     1.00, 0.00, 1.00; 1.00, 0.00, 0.00; 1.00, 1.00, 0.00];
@@ -70,10 +77,10 @@ NotFolder = 0;
 %% Loads Variables and NORMALIZED broadband data
     
     % Choose an analysis type:
-    desc_label = 'EachImage';
+    desc_label = 'PerRun';
      
     % Load normalized NSD-iEEG-broadband data
-    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_vars', ['sub-' subject],...
+    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_PerRun', ['sub-' subject],...
     ['sub-' subject '_normalizedMbb' desc_label '_ieeg.mat']);
     
     fprintf("Loading Normalized Broadband Data...")
@@ -96,6 +103,7 @@ meanresults = zeros(length(channel), length(folderName));
 %Stores peak results, columns are folders and rows are electrodes
 peakresults = zeros(length(channel), length(folderName));
 
+
 % Calls the folderAverageBBfunction for each given electrode and folder
 for i = 1:length(channel)
     % States which channel it is currently processing
@@ -105,7 +113,7 @@ for i = 1:length(channel)
     channelidx = find(ismember([all_channels.name],currentchannel));
        
     %finds BBValues of all the images in the channel
-    channelBBvalues = permute(New_Mbb_Norm(channelidx, :, :), [2 3 1]);
+    channelBBvalues = permute(Mbb_Norm_perRun(channelidx, :, :), [2 3 1]);
 
     if (allElectrode == 0) && (plotBBvalues == 1)
         figure;
@@ -117,7 +125,7 @@ for i = 1:length(channel)
         currentFolder = folderName{j}
         
         % Finds the average broadband values of the folder
-        [folderBB, folderStE] = BBAverageImageFolder(currentFolder,...
+        [folderBB, folderStE, imageBB] = BBAverageImageFolder(currentFolder,...
             NotFolder, channelBBvalues, shared_idx,nsd_repeats, imageFolderPath);
         
         % Stores the average normalized BB values and standard error of the current folder
@@ -128,7 +136,7 @@ for i = 1:length(channel)
 
         if findmean == 1 
             % Finds the mean from meanttmin to meanttmax
-            [BBmean,BBpeak] = BBmeanAndPeak(folderBB, meanttmin, meanttmax, tt);
+            [BBmean,BBpeak, BBmedian] = BBmeanAndPeak(folderBB, meanttmin, meanttmax, tt);
             
             % Stores then prints the mean calculated above
             meanresults(i,j) = BBmean;
@@ -139,6 +147,9 @@ for i = 1:length(channel)
             peakresults(i,j)   = BBpeak;
             fprintf(append('The peak from ', num2str(meanttmin), ' to ', num2str(meanttmax), ' is: '));
             BBpeak
+
+            % Stores the BBmedian calculated above
+            medianresults(i,j) = BBmedian;
 
         end
 
@@ -152,8 +163,7 @@ for i = 1:length(channel)
             plotBB(folderBB, folderStE, graphttmin, graphttmax, currentcolor, tt)
 
         end
-       
-    
+
     end
     
     if (plotBBvalues == 1) && ((allElectrode == 0) || (length(channel)==1))
@@ -191,6 +201,5 @@ for i = 1:length(channel)
         title(append("Folder Comparison, Subject-", subject, ": multiple channels"))
     end
     ylim([-0.1,1]);
-
 end
 

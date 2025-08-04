@@ -1,5 +1,5 @@
 %% Creates normalized data that is then stored in Mbb_Norm_perRun 
-% The data is normalized by run (1530 times)
+% The data is normalized by run (10 runs total)
 % The code for the actual normalization process is Morgan's code.
 
 clear;
@@ -9,7 +9,7 @@ localDataPath = setLocalDataPath(1);
 input = localDataPath.BBData;
 
 %Choose the desired subject data to normalize
-subject='20'; 
+subject='19'; 
 
  % Choose an analysis type:
 desc_label = 'preprocCARBB';
@@ -55,7 +55,8 @@ end
 fprintf(append("Normalization of subject-", subject, " complete."));
 
 %Easy way to check the graph of the new normalized data:
-%plot(tt(tt<=0.8 & tt>=-0.1), Mbb_Norm_perRun(1,find(tt<=0.8 & tt>=-0.1), 5))% USES MORGAN'S NORMALIZATION (NORMALIZATION PER RUN)
+%plot(tt(tt<=0.8 & tt>=-0.1), Mbb_Norm_perRun(1,find(tt<=0.8 & tt>=-0.1), 5))
+
 
 
  

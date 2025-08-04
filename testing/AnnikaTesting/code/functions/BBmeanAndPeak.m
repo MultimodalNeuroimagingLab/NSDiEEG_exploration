@@ -1,6 +1,6 @@
-function [BBmean,BBpeak] = BBmeanAndPeak(BBvalues, meanttmin, meanttmax, tt)
-%BBMEAN Summary of this function goes here
-%   Detailed explanation goes here
+function [BBmean,BBpeak, BBmedian] = BBmeanAndPeak(BBvalues, meanttmin, meanttmax, tt)
+%BBMEANANDPEAK calculates the mean, peak, and median values of supplied
+%BBvalues over a specified time interval.
 
     ttt = find(tt>=meanttmin & tt<=meanttmax);
     
@@ -8,11 +8,12 @@ function [BBmean,BBpeak] = BBmeanAndPeak(BBvalues, meanttmin, meanttmax, tt)
     ttavgBB = BBvalues(ttt);
 
     %Returns the mean from t=meanttmin to t=meanttmax
-    BBmean=mean(ttavgBB);
+    BBmean=mean(ttavgBB, 'omitnan');
     
     %Returns peak BB from t=meanttmin to t=meanttmax
-    BBpeak = max(ttavgBB);
+    BBpeak = max(ttavgBB, [], 'omitnan');
 
-
+    %Returns median BB from t=meanttmin to t=meanttmax
+    BBmedian=median(ttavgBB, 'omitnan');
     
 end    

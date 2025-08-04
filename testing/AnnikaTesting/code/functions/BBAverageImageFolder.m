@@ -1,9 +1,11 @@
-function [folderBB, folderStandardError] = BBAverageImageFolder( ...
+function [folderBB, folderStandardError, imageBB] = BBAverageImageFolder( ...
     folderName, NotFolder, AllBBValues, ...
-    shared_idx, nsd_repeats, localImageFolderPath)
+    shared_idx, nsd_repeats, localImageFolderPath, channel)
 
-    % AverageImageFolderBB calculates the average broadband and standard error 
-    % of the images in the folder (excluding any repeats). 
+    % BBAverageImageFolder calculates the average broadband and standard error 
+    % of the images in the folder (excluding any repeats). It returns the
+    % mean across images at each time point (folderBB) and the mean across
+    % time points for each image (imageBB).
 
     folderStandardError = [];
 
@@ -36,9 +38,14 @@ function [folderBB, folderStandardError] = BBAverageImageFolder( ...
     end
     
     
-    %Averages all of the BBValues of the images in the folder
+
+    % One number (mean of all images) for each time point
     folderBB = mean(BBvalues,2);
+
+    % One number (mean of all time points) for each image 
+    imageBB=mean(BBvalues,1);
     
+    % One number (standard deviation across images) for each time point
     folderStandardError(1, :)=(std(BBvalues, 0, 2))/sqrt(length(BBvalues(1,:)));
 end   
     

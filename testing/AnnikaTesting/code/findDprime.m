@@ -1,32 +1,31 @@
 %% This will find the D Prime values between one folder of images and one or more folders
+% This has only been tested comparing one folder to one other folder
 
 clear;
+
 %%
 localDataPath = setLocalDataPath(1);
 
 %path to the folder containing folders of different types of broadband data
 input = localDataPath.BBData;
 
-
 %folder to be compared
-folderName = "Experiment8PeopleInteracting"; 
+folderName = "People"; 
 %{'GroupPeople', 'SinglePerson', 'Random'};
 
 % folders to which the main folder is being compared
-OtherFolders = {'Experiment8NotPeople'};
+OtherFolders = {'NoPeople'};
 N=length(OtherFolders);
 
 %Subject to be used
 subject='13';
 
 %Channel to be tested
-channel = {"RLS1","RLS2","RLI1"};
+channel = {"LOC6","LOC7","LOC8"};
 
 %The range of time that will be meaned
-meanttmin = 0.0;
-meanttmax = 0.4;
-
-
+meanttmin = 0.15;
+meanttmax = 0.5;
 
 
 %% Loads Variables and NORMALIZED broadband data
@@ -72,6 +71,8 @@ for j = 1:length(channel)
     end
      
     
+    %Calculates the d prime using the mean and variance of the folders
+
     numeratorSum = sum(MeanOtherFolderValues, "all");
 
     denominatorSum = sum((varOtherFolderValues), "all");

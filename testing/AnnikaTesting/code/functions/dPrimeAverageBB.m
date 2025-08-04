@@ -15,33 +15,14 @@ function [meanavgBB,standardDeviation, variance] = dPrimeAverageBB( ...
 
 
     %Finds the shared_idx in the order of images shown
-    image_idxOrderShown = (ismember(shared_idx1000, sharedimageidxs));
+    image_idxOrderShown = find(ismember(shared_idx1000, sharedimageidxs));
 
     %Finds the Normalized BB values of images in the folder:
     NormalizedBBValues = squeeze(New_Mbb_Norm(channelcurrent, :, image_idxOrderShown));
-    ttNormalizedBBValues = NormalizedBBValues(find(tt>=meanttmin & tt<=meanttmax), :);
-
-    %{
-    BBvaluesList = [];
-    SidewaysAllBBValues = AllBBValues';
-    %Finds the BB values of all the images in the folder:
-    for i = 1:length(imageidxs)
-        BBvalues(:, i) = AllBBValues(:,imageidxs(i));
-        BBvaluesList = [BBvaluesList SidewaysAllBBValues(imageidxs(i),:)];
-    end
-    %}
+    ttNormalizedBBValues = NormalizedBBValues((tt>=meanttmin & tt<=meanttmax), :);
 
     %Creates average BB between ttmin and ttmax for each image 
     avgBB = mean(ttNormalizedBBValues,1, 'omitnan');
-    
-    %{
-    %Finds the standard deviation of all broadband values between 
-    % t=meanttmin to t=meanttmax of each individual image (before creating mean of
-    % images)
-    standardDeviationRows=std(ttNormalizedBBValues, 0, 1);
-    standardDeviationColumns=std(ttNormalizedBBValues, 0, 2);
-    standardDeviation = sqrt((standardDeviationRows.^2) + (standardDeviationColumns.^2));
-    %}
 
     %Takes the standard deviation of the means of each image
     standardDeviation = std(avgBB);
