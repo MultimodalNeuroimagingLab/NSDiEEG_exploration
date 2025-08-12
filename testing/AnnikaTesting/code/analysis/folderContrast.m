@@ -1,3 +1,5 @@
+% UNDER CONSTRUCTION
+
 % Creates a list of mean contrasts of images in a folder, also lists the
 % mean contrast of the entire folder.
 

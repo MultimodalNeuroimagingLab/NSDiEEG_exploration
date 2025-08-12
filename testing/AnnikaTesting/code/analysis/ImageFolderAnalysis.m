@@ -1,23 +1,30 @@
 %% Averages BB of a folder of images, graphs average BB, and finds the mean/peak  
-% This program averages the normalized broadband of images in a user-specified 
-% file. Then, it can either graph this broadband or take the mean. The graph  
-% and mean are between user-specified time points. This program can loop 
+% This program averages the normalized broadband of an image category in a user-specified 
+% electrode. Then, it can graph this broadband, find the d', and take the mean,
+% peak, and median over a specified time frame. This program can loop 
 % through multiple electrodes or folders.
 
 %There are four versions of this script
-    % AutoFolderAverageBB: loads normalized AND preproc data
-    % (uses pre-proc data to load EventsST, tt, and all_channels which is 
-    % not included in New_Mbb_Norm)
-
-    % NormAutoFolderAverageBB: Only loads normalized (EventsST, tt, and all_channels 
-    % are within the normalized data upload)
-
-    % (current) ImageFolderAnalysis: Same as NormAutoFolderAverageBB, but organized
-    % better and easier to understand
-
+    
     % RECOMMENDED:
-    % ImageFolderAnalysis_SubjectLoop: Same as ImageFolderAnalysis, but 
-    % is able to loop through multiple subjects. It can also calculates d'
+
+    % ImageFolderAnalysis_SubjectLoop: Can analyze multiple subject.
+    
+    % (current) ImageFolderAnalysis: Cannot analyze multiple subjects, but it
+    % is faster when analyzing a single subject
+
+    % NOT RECOMMENDED:
+    
+    % NormAutoFolderAverageBB: Cannot find d' and can only use folders of
+    % images (not the excel file columns)
+
+    % AutoFolderAverageBB: Same as NormAutoFolderAverageBB, but it loads normalized 
+    % AND preproc data (uses pre-proc data to load EventsST, tt, and all_channels 
+    % which is not included in New_Mbb_Norm)
+
+    
+
+
 
 
 clear;

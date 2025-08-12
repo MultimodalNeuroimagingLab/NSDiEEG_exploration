@@ -40,8 +40,10 @@ Mbb_Norm_perRun = zeros(size(Mbb_norm), 'single');
 % Normalize per run
 for run_idx = 1:max(eventsST.tasknumber)
   
+    % To keep track of how far the code is 
     run_idx
    
+    % Finds the images in the current run
     this_run = find(eventsST.tasknumber==run_idx); % out of 1500
    
     % find pre-stim events with 'good' status

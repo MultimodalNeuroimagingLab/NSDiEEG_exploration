@@ -1,6 +1,7 @@
 %% Creates normalized data that is then stored in New_Mbb_Norm 
 % The data is normalized by each individual image shown (1530 times)
-% This is a version of newBBNormalization.m that uses a parfor loop.
+
+% This is the same as newBBNormalization.m, except that it uses a parfor loop.
 
 clear;
 

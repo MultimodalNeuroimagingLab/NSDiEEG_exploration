@@ -1,4 +1,5 @@
-% Calculates the Signal to Noise Ratio using Zeeshan's code
+% Calculates the Signal to Noise Ratio of each electrode using Zeeshan's code
+
 %%
 localDataPath = setLocalDataPath(1);
 

@@ -4,37 +4,44 @@
 % Plots the Broadband of the image with a specific shared image number
 % Plots every image within a folder
 
-% This will plot between ttmin and ttmax
-
-ttmin = -0.1;
-ttmax = 0.8;
-
-channel = "LOC13";
-channelnum = find(ismember([all_channels.name],currentchannel));
-
-
-folderName = 'Buildings'; %Folder with the images
-loadBB = 0; %0 if you have the Broadband data in New_Mbb_Norm, 1 if not
 
 localDataPath = setLocalDataPath(1);
-
 %full path to the folder of different types of broadband data
 input = localDataPath.BBData;
 %Full path to the folder containing the folder of images
 localImageFolderPath = localDataPath.imFolders;
 
-sharedimageidx = folder_idxs(folderName, localImageFolderPath);
 
+% This will plot between ttmin and ttmax (x-axis)
+ttmin = -0.1;
+ttmax = 0.8;
+
+%Current Subject
+subject = '02';
+
+%Current Channel
+channel = "LOC7";
+channelnum = find(ismember([all_channels.name],channel));
+
+% Folder of images that are going to be plotted (must be in
+% localImageFolderPath)
+folderName = 'NoHuman1';
+
+%0 if you have the Broadband data in New_Mbb_Norm, 1 if not
+loadBB = 1; 
+
+% Finds the shared indexes of the images in the folder
+sharedimageidx = folder_idxs(folderName, localImageFolderPath);
 
 
 
 %% Loads Variables and NORMALIZED broadband data
 if loadBB == 1    
     % Choose an analysis type:
-    desc_label = 'EachImage';
+    desc_label = 'PerRun';
      
     % Load normalized NSD-iEEG-broadband data
-    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_vars', ['sub-' subject],...
+    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_PerRun', ['sub-' subject],...
     ['sub-' subject '_normalizedMbb' desc_label '_ieeg.mat']);
     load(Path_Mbb_Norm);
     
@@ -54,7 +61,7 @@ end
     imageNumberShown = find((ismember(shared_idx1000', sharedimageidx(i))));
 
     %Plots the BB values
-    plot((tt(tt<=ttmax & tt>=ttmin)), (New_Mbb_Norm(channelnum, find(tt<=ttmax & tt>=ttmin), imageNumberShown)));
+    plot(tt(tt<=ttmax & tt>=ttmin), (Mbb_Norm_perRun(channelnum, find(tt<=ttmax & tt>=ttmin), imageNumberShown)));
     ylim([0,1]);
-    title("Image: ", sharedimageidx(i))
+    title(append("Image: ", num2str(sharedimageidx(i)), ", sub-", subject, ", channel: ", channel));
  end

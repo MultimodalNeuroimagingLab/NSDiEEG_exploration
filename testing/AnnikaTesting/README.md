@@ -6,10 +6,24 @@ Contained in this project is code to normalize data, compare groups of images,
 compare specific images, and many other functions.
 
 ├── beforeAnalysis/             % Code to run before analyzing data (normalization, SNR)
+
 ├── analysis/                   % Code to analyze the normalized broadband data
+
 ├── old/                        % Old versions of code existing in another folder
+
 ├── external/                   % Code used in many functions, but not written by me
+
 ├── README.md                   % This file
+
+
+
+
+### Important Note
+
+Almost all the code needs the program `setLocalDataPath.m` and `ieeg_nsdParseEvents.m`
+which are in the "external" folder.
+
+
 
 
 ### Before Analysis
@@ -24,11 +38,14 @@ These are the steps for per-run:
 2. Across all trials in a run, mean from -0.1 to 0 
 3. Subtract the mean from the entire time period
 
+
 #### Calculating SNR
 It is also recommended to calculate the Signal to Noise Ratio (SNR) of each of
 the electrodes. This project used Zeeshan's code (`SNR.m`, which is in the External
 folder) to calculate the SNR and then orders the electrodes into a file using 
 the a separate code (`loadSNR.m`)
+
+
 
 
 ### Analysis
@@ -46,6 +63,7 @@ Whenever the following mentions finding indexes of images, it uses the function
 `folder_idxs.m` when a folder of images is being used or `annotatedImages_idx.m`
 when an excel file is being used.
 
+
 #### Category Comparison: Calculating Means, Medians, and d'
 
 With the normalized data, the main code used id either `ImageFolderAnalysis` 
@@ -61,12 +79,13 @@ is one value for each time point)
 Steps 3 and 4 use `BBAverageImageFolder.m`
 
 Depending on the input, the code completes these steps:
-- Plots the mean across images on a graph over time using `plotBB.m`
+- Plots the mean across images on a graph over time using `plotBB.m` and `shadedErrorBars.m`
 - Calculates the mean, peak, and median of the image average across a specified 
 time frame using `BBMeanAndPeak.m`
 - Given two folders, calculates the d' between these folders using `DprimeFunction.m,
 explained below.
  
+
 #### Category Comparison: Calculating d'
 
 There is a separate option to calculate d' between two folders (using `findDprime.m`
@@ -78,20 +97,34 @@ has one value
 4. Takes the mean and variance of all of the image means (`dPrimeAverageBB`)
 5. Uses the d’ equation to calculate d’
 
+
+#### Category Comparison: Calculating Image Contrast
+
+Using a list of images with a Gabor Filter applied, the code `contrastMean.m` 
+will take the mean contrast of each image and save it in a 1x1000 array. Then, 
+using `folderContrast.m` (which is still under construction), the mean contrast
+of images within a folder will be calculated.
+
+
 #### Single Image: Comparing Broadband Traces
 
 `SinglePhotoBBGraph.m` will take normalized broadband data of a subject, find 
 a single image at a single electrode, and plot the trace of that image over 
 time (using `plotBB_SinglePhoto.m). Similarly, `SinglePhotoBBGraphFolder plots 
-every image within a folder.
+the broadband data of every image within a folder.
+
 
 #### Single Image: Finding Images
 
 The functions `displayImageNSDidx.m` and `displayImageSharedidx.m` both take 
 an index of an image and create a figuring displaying the requested image.
 
+
 #### Other functions
 
-The functions `NSD2shared.m` and 'shared2NSD.m` are inverses of each other. They
+The functions `NSD2shared.m` and `shared2NSD.m` are inverses of each other. They
 take one type of index (for example, the NSD index) and convert it to the other
 type of index (in this case, the Shared index).
+
+The script `normBB_withFigures` is an edited version of Morgan's code.
+

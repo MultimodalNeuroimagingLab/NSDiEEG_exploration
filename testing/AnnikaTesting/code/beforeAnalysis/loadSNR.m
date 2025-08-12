@@ -64,9 +64,9 @@ channel = ...
    %Saves only the requested channels in the order that they are requestedc
    for i=1:length(subject)
         
+       % Loads information for the current subject
        all_channels = all_channels_array{i};
        SNRchannels = SNR_all{:,i};
-
        subChannel = channel{i};
 
        for j = 1:length(subChannel)
