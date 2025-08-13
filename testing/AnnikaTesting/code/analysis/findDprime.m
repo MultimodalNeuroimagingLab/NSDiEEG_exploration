@@ -9,25 +9,35 @@ localDataPath = setLocalDataPath(1);
 %path to the folder containing folders of different types of broadband data
 input = localDataPath.BBData;
 
+% If using an excel file with a list of 1's and 0's instead of two folders 
+% of images, set annotatedImages to 1 (if using folders of images, set
+% annotatedImages to 0)
+% If using folders, assign localDataPath.imFolders to the folder containing
+% the two folders of images
+% If using an excel file, assign localDataPath.imageAnnotations to the
+% excel file
+annotatedImages = 1;
+
+
 %folder to be compared
-folderName = "faceTowards"; 
-%{'GroupPeople', 'SinglePerson', 'Random'};
+folderName = "HumanAnimal"; 
 
 % folders to which the main folder is being compared
-OtherFolders = {'notAlive'};
+OtherFolders = {'HumanNoInteraction'};
 N=length(OtherFolders);
 
 %Subject to be used
-subject='06';
+subject='05';
 
 %Channel to be tested
-channel = {"ROC10"};
+channel = {"ROC12"};
 
 %The range of time that will be meaned
 meanttmin = 0.1;
 meanttmax = 0.5;
 
-annotatedImages = 1;
+
+
 %% Loads Variables and NORMALIZED broadband data
     
     % Choose an analysis type:
@@ -56,7 +66,7 @@ for j = 1:length(channel)
 
     %Gets list of the indexes of the images within the folder   
     if annotatedImages == 0
-        sharedimageidxs = folder_idxs(folderName, localImageFolderPath);
+        sharedimageidxs = folder_idxs(folderName);
     else
         sharedimageidxs = annotatedImages_idx(folderName);
     end
@@ -72,15 +82,17 @@ for j = 1:length(channel)
     for i=1:length(OtherFolders)
         %Gets list of the indexes of the images within the folder   
         if annotatedImages == 0
-            sharedimageidxs_notFolder = folder_idxs(OtherFolders{i}, localImageFolderPath);
+            sharedimageidxs_notFolder = folder_idxs(OtherFolders{i});
         else
             sharedimageidxs_notFolder = annotatedImages_idx(OtherFolders{i});
         end
         
+       %Gets the mean of the images in the selected NOT folder over the selected time period
         [notFolderMeanBB,notfolderSTD_BB, notfoldervar] = dPrimeAverageBB(OtherFolders{i}, channelIdx, ...
         meanttmin, meanttmax, tt, shared_idx, Mbb_Norm_perRun, nsd_repeats, ...
         sharedimageidxs_notFolder); 
 
+        %Saves the values in an array
         MeanOtherFolderValues(i) = notFolderMeanBB;
         varOtherFolderValues(i) = notfoldervar;
     end

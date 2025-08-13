@@ -23,7 +23,7 @@
     % which is not included in New_Mbb_Norm)
 
     
-
+%The error bars on the graph are one standard error
 
 
 
@@ -34,45 +34,37 @@ localDataPath = setLocalDataPath(1);
 %path to the folder containing folders of different types of broadband data
 input = localDataPath.BBData;
 
+% (If using annotatedImages, this is unused)
 %path to the folders of different types of images
 imageFolderPath = localDataPath.imFolders;
 
+% (If using imagefolders, this is unused)
+%path to the folders of different types of images
+annotationsPath = localDataPath.imageAnnotations;
 %%
 % 1 to plot BB values, 0 to skip (plot from graphttmin to graphttmax)
 plotBBvalues = 1;    
-graphttmin = -2;
-graphttmax = 2;
+graphttmin = -0.1;
+graphttmax = 0.8;
 
 % 1 to find mean of BB values over meanttmin to meanttmax, 0 to skip
 findmean = 1;         
-meanttmin = 0.1;
+meanttmin = 0.15;
 meanttmax = 0.5;
 
 
 %folders of images to be averaged
-folderName = {'faceTowards',	'Human',	'Animal', 'notAlive'};%	'Objects'};%,	
+folderName = {'NoHuman1',	'NoHuman2'};
 
 %Subject to be used
-subject='06';                      
+subject='05';                      
 
 %Channels to be tested
-channel = {"ROC10"};
+channel = {"ROC10", "ROC11"};
 
-%Colors for each graph (in the same order as the list)
+%Colors for each graph, due to the error bar function (same order as the list)
 colors = {'-b', '-r', '-y', 'g'};
 legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00; 1.00, 1.00, 0.00; 0.00, 1.00, 0.00];
-%{
-colors = {'-b', '-r'};
-legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00];
-
-colors = {'-b', 'g', '-c', '-m', '-r', '-y'};
-legendcolor = [0.00, 0.00, 1.00; 0.00, 1.00, 0.00; 0.00, 1.00, 1.00; ...
-    1.00, 0.00, 1.00; 1.00, 0.00, 0.00; 1.00, 1.00, 0.00];
-
-colors = {'-b', '-k', '-r' };
-legendcolor = [0.00, 0.00, 1.00; 0.00, 0.00, 0.00;1.00, 0.00, 0.00];
-%}
-
 
 %0 to create a separate graph for each electrode, 1 to graph all on one.
 allElectrode = 0;
@@ -82,7 +74,7 @@ NotFolder = 0;
 
 % 0 to find a folder of images to analyze, 1 to create indexes based off an
 % excel sheet
-annotatedImages = 1;
+annotatedImages = 0;
 
 %If folders chosen are different sizes, input the number wanted from each
 %folder, and the code will select that many random images from the folder.
@@ -119,9 +111,14 @@ meanresults = zeros(length(channel), length(folderName));
 %Stores peak results, columns are folders and rows are electrodes
 peakresults = zeros(length(channel), length(folderName));
 
+% Preallocates the size of the dprime folder
+if length(folderName) == 2
+    dprime = zeros(length(channel), 1);
+end
 
 % Calls the folderAverageBBfunction for each given electrode and folder
 for i = 1:length(channel)
+
     % States which channel it is currently processing
     currentchannel = channel{i}
     
@@ -152,6 +149,7 @@ for i = 1:length(channel)
 
 
         if findmean == 1 
+
             % Finds the mean from meanttmin to meanttmax
             [BBmean,BBpeak, BBmedian] = BBmeanAndPeak(folderBB, meanttmin, meanttmax, tt);
             
@@ -181,9 +179,19 @@ for i = 1:length(channel)
 
         end
 
+        % If there are two folders, the program will automatically
+        % calculate d'
+        if (length(folderName) == 2) 
+             
+            %Calculates the d prime values
+            [dprime(i)] = DprimeFunction(folderName{1}, folderName{2}, channelidx, ...
+                tt, shared_idx, Mbb_Norm_perRun, nsd_repeats, meanttmin, meanttmax, ...
+                annotatedImages);
+        end
+
     end
     
-    if (plotBBvalues == 2) && ((allElectrode == 0) || (length(channel)==1))
+    if (plotBBvalues == 1) && ((allElectrode == 0) || (length(channel)==1))
         hold on
 
         % Preallocate handles for the legend
@@ -195,12 +203,12 @@ for i = 1:length(channel)
         end
 
         % Create legend using the folder names
-        legend(handles, folderName, 'Location', 'best');y
+        legend(handles, folderName, 'Location', 'best');
 
         %Creates title
         title(append("Folder Comparison, Subject-", subject, ": ", currentchannel))
 
-    elseif (plotBBvalues == 2)
+    elseif (plotBBvalues == 1)
         hold on
 
         % Preallocate handles for the legend
@@ -217,8 +225,8 @@ for i = 1:length(channel)
         %Creates title
         title(append("Folder Comparison, Subject-", subject, ": multiple channels"))
     end
-    ylim([-0.05,0.4]);
-    title(append("Folder Comparison, Subject-", subject, ": ", currentchannel))
-    legend(folderName);
+    ylim([-0.1,1]);
+    %title(append("Folder Comparison, Subject-", subject, ": ", currentchannel))
+    %legend(folderName);
 end
 

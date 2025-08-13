@@ -101,9 +101,10 @@ has one value
 #### Category Comparison: Calculating Image Contrast
 
 Using a list of images with a Gabor Filter applied, the code `contrastMean.m` 
-will take the mean contrast of each image and save it in a 1x1000 array. Then, 
-using `folderContrast.m` (which is still under construction), the mean contrast
-of images within a folder will be calculated.
+will use Morgan's code to find the contrast, then take the mean contrast of 
+each image and save it in a 1x1000 array. Then, using `folderContrast.m`, the 
+mean contrast of images within a folder will be calculated (listing the average 
+contrast of each image in the folder and the mean across these images).
 
 
 #### Single Image: Comparing Broadband Traces

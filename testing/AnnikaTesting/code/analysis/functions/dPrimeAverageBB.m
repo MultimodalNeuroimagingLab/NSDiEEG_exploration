@@ -9,7 +9,6 @@ function [meanavgBB,standardDeviation, variance] = dPrimeAverageBB( ...
     shared_idx1000 = shared_idx(Special1000idx, 1);
     shared_idx1000 = shared_idx1000';
 
-
     %Finds the shared_idx in the order of images shown
     image_idxOrderShown = find(ismember(shared_idx1000, sharedimageidxs));
 

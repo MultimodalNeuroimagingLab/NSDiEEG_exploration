@@ -1,6 +1,5 @@
 function varargout=plotBB_SinglePhoto(subject, sharedimageidx, repeatnum, ...
     channelname,ttmin, ttmax, shared_idx,tt, Mbb_Norm_perRun, all_channels)
-
 %% SinglePhotoBBGraph graphs the broadband values of a specific image
 
 % Plots the Broadband of the image with a specific shared image number
@@ -34,8 +33,10 @@ if nargin == 6
 end
  %%
 
+ % Finds the channel inded
 channelidx = find(ismember([all_channels.name],channelname));
 
+% Allows the user to input a string and the function will still work
  if ~isnumeric(sharedimageidx)
        sharedimageidx = str2double(sharedimageidx);
  end
@@ -44,16 +45,11 @@ channelidx = find(ismember([all_channels.name],channelname));
  image_idx = find(ismember(shared_idx, sharedimageidx));
  image_idx = image_idx(repeatnum);
 
- %{
- if events_status(image_idx) == 1
-     fprintf("This run is bad!")
- end
- %}
-
  %Plots the BB values
  plot(tt(tt<=ttmax & tt>=ttmin), Mbb_Norm_perRun(channelidx,find(tt<=ttmax & tt>=ttmin), image_idx));
  ylim([-1 1]);
  xlabel('Time (seconds)')
  ylabel('Broadband Power (% signal change)')
  title(append("Single Image: ", num2str(sharedimageidx), ", Sub-", subject, ", Electrode: ", channelname));
+
 end

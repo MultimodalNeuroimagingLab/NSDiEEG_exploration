@@ -38,6 +38,7 @@ function [folderBB, folderStandardError, imageBB] = BBAverageImageFolder( ...
         sharedimageidxs = notIndex;
     end
 
+    
     % finds the first repeat of the images
     Special1000idx = find(nsd_repeats <= 1);    
     shared_idx1000 = shared_idx(Special1000idx);
