@@ -2,6 +2,7 @@ function [BBmean,BBpeak, BBmedian] = BBmeanAndPeak(BBvalues, meanttmin, meanttma
 %BBMEANANDPEAK calculates the mean, peak, and median values of supplied
 %BBvalues over a specified time interval.
 
+    % Time frame over which the function will take the mean, max, and median
     ttt = find(tt>=meanttmin & tt<=meanttmax);
     
     %Saves only the tt asked for

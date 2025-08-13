@@ -1,6 +1,7 @@
-% This script will run on Morgan's shared1000_gaborFilt01_sz336_cpd3_DN_r1_s0_imgs
+% This script will run Morgan's shared1000_gaborFilt01_sz336_cpd3_DN_r1_s0_imgs
 % to create 1x1000 array that contains one number per image rating its
-% amount of contrast 
+% amount of contrast. Then it will find the mean contrast of each image, not 
+% including the 0's around the border.
 
 localDataPath = setLocalDataPath(1);
 

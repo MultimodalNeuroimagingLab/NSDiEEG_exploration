@@ -9,7 +9,7 @@ localDataPath = setLocalDataPath(1);
 input = localDataPath.BBData;
 
 %Choose the desired subject data to normalize
-subject='19'; 
+subject='06'; 
 
  % Choose an analysis type:
 desc_label = 'preprocCARBB';
@@ -32,7 +32,7 @@ sel_events = eventsST;
 Mbb_norm = log10(Mbb);
  
 % Indicate the interval for baseline, used in normalization
-norm_int = find(tt>-.1 & tt<0);
+norm_int = find(tt>-.4 & tt<0);
 
 % This is where the normal values will be stored 
 Mbb_Norm_perRun = zeros(size(Mbb_norm), 'single');
@@ -40,8 +40,10 @@ Mbb_Norm_perRun = zeros(size(Mbb_norm), 'single');
 % Normalize per run
 for run_idx = 1:max(eventsST.tasknumber)
   
+    % To keep track of how far the code is 
     run_idx
    
+    % Finds the images in the current run
     this_run = find(eventsST.tasknumber==run_idx); % out of 1500
    
     % find pre-stim events with 'good' status

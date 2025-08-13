@@ -6,6 +6,7 @@ function idxs_in_folder = folder_idxs(folderName, localImageFolderPath)
 
     %path to the folders of different types of images
     if nargin == 1
+        
         % If only folder is given, it will find the path in personal paths
         localDataPath = setLocalDataPath(1);
         localImageFolderPath = localDataPath.imFolders;
@@ -14,8 +15,6 @@ function idxs_in_folder = folder_idxs(folderName, localImageFolderPath)
 
     % If the folder and the path is given, it will use the given path
     currentFolder = fullfile(localImageFolderPath, folderName);
-    
-    
     
     %extracts the names of the images from the current folder
     folderContents = dir(fullfile(currentFolder, '*.png'));

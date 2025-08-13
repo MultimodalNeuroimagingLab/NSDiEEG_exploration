@@ -6,6 +6,7 @@ function sharedNumber = NSD2shared(nsd_to_convert)
 % Input can be numeric or a string of numbers
 % Returns a numerical value (does not have the zeros in front)
 
+
     load nsd_idx.mat
     load shared_idx.mat
     

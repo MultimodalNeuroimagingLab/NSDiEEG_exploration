@@ -1,5 +1,6 @@
-%After running this code, "Mbb_Norm" will contain the normalized broadband
-%values of a single image in a specified channel and subject.
+%After running this code, "Mbb_Norm" will be a column containing the normalized 
+%broadband values of a single image in a specified channel and subject. This
+%normalization is not per-run, but normalized against itself.
 
 %% Set the image, channel, subject and repeat# (out of 6) 
 clear;
@@ -53,7 +54,6 @@ Mbb_norm = log10(Mbb);
  
 % Indicate the interval for baseline, used in normalization
 norm_time_interval = find(tt>-.1 & tt<0);
-
 
 %finds BB values of the current channel
 Mbb_norm_channel = squeeze(Mbb_norm(currentChannel_idx, :, :));

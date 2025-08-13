@@ -1,7 +1,5 @@
 function plotBB(BBvalues,StandardError,graphttmin, graphttmax, currentcolor, tt)
 %PLOTBB graphs BB values over a specified time period. 
-%   BBvalues 
-
         
         % x values for the plot
         ttt = tt(tt>=graphttmin & tt<=graphttmax);
@@ -15,11 +13,17 @@ function plotBB(BBvalues,StandardError,graphttmin, graphttmax, currentcolor, tt)
         %plots the mean of all the images
         plot(ttt,ttBBvalues);
        
+        % Labels the y and x axis
         xlabel('Time (seconds)')
         ylabel('Broadband Power (% signal change)')
+
+        %Adds error bars that are one standard error away
         shadedErrorBar(ttt,ttBBvalues,ttste, 'lineprops', currentcolor,'patchSaturation',0.075);
         
-        ylim([0,1]);
+        % Sets the limits of the y-axis (x-axis limits are graphttmin to
+        % graphttmax)
+        ylim([-0.1,1]);
+
         hold on;
 end
 

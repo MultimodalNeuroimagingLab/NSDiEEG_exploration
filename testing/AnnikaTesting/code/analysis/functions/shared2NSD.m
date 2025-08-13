@@ -9,7 +9,7 @@ function nsdNumber = shared2NSD(shared_to_convert)
 
     load nsd_idx.mat
     load shared_idx.mat
-    
+   
     if ~(isnumeric(shared_to_convert))
          shared_to_convert = str2double(shared_to_convert);
     end

@@ -1,6 +1,6 @@
 function [folderBB, folderStandardError, imageBB] = BBAverageImageFolder( ...
     folderName, NotFolder, AllBBValues, ...
-    shared_idx, nsd_repeats, localImageFolderPath, channel)
+    shared_idx, nsd_repeats, localImageFolderPath, annotatedImage, folderSize)
 
     % BBAverageImageFolder calculates the average broadband and standard error 
     % of the images in the folder (excluding any repeats). It returns the
@@ -10,8 +10,24 @@ function [folderBB, folderStandardError, imageBB] = BBAverageImageFolder( ...
     folderStandardError = [];
 
     %Gets list of the indexes of the images within the folder   
-    sharedimageidxs = folder_idxs(folderName, localImageFolderPath);
-   
+    if annotatedImage == 0
+        sharedimageidxs = folder_idxs(folderName, localImageFolderPath);
+    else
+        sharedimageidxs = annotatedImages_idx(folderName);
+    end
+
+    %Selects a given number (folderSize) of random images from the folder
+    newsharedimageidxs = [];
+    if folderSize > 0
+        for i = 1:folderSize
+          currentRandNum = randi([1,length(sharedimageidxs)]);
+          newsharedimageidxs(i)=sharedimageidxs(currentRandNum);
+          sharedimageidxs(currentRandNum)=[];
+        end
+        sharedimageidxs = sort(newsharedimageidxs);
+    end
+
+
     %The following sets the image index to all the images not in the folder
     isNotInFolder = ones(1,1000);
     for k=1:length(sharedimageidxs)
@@ -22,6 +38,7 @@ function [folderBB, folderStandardError, imageBB] = BBAverageImageFolder( ...
         sharedimageidxs = notIndex;
     end
 
+    
     % finds the first repeat of the images
     Special1000idx = find(nsd_repeats <= 1);    
     shared_idx1000 = shared_idx(Special1000idx);
@@ -40,10 +57,10 @@ function [folderBB, folderStandardError, imageBB] = BBAverageImageFolder( ...
     
 
     % One number (mean of all images) for each time point
-    folderBB = mean(BBvalues,2);
+    folderBB = mean(BBvalues,2, 'omitnan');
 
     % One number (mean of all time points) for each image 
-    imageBB=mean(BBvalues,1);
+    imageBB=mean(BBvalues,1, 'omitnan');
     
     % One number (standard deviation across images) for each time point
     folderStandardError(1, :)=(std(BBvalues, 0, 2))/sqrt(length(BBvalues(1,:)));

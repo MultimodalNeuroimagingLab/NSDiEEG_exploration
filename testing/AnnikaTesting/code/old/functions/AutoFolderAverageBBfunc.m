@@ -11,7 +11,6 @@ function [meanavgBB,peakavgBB, BB, standError] = AutoFolderAverageBBfunc( ...
 %folderName is the folder to be averaged
 %subject is the subject to be used (current subject)
 %channel is channel to be used (current channel)
-  
     
 %NotFolder is 0 for all images in folder, 1 for all images in the shared 1000 besides what is in this folder,
     

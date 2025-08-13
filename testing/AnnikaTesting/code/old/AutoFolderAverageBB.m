@@ -1,22 +1,29 @@
-
 %% Averages BB of a folder of images, graphs average BB, and finds the mean/peak  
-% This program averages the normalized broadband of images in a user-specified 
-% file. Then, it can either graph this broadband or take the mean. The graph  
-% and mean are between user-specified time points. This program can loop 
+% This program averages the normalized broadband of an image category in a user-specified 
+% electrode. Then, it can graph this broadband, find the d', and take the mean,
+% peak, and median over a specified time frame. This program can loop 
 % through multiple electrodes or folders.
 
-%There are three versions of this script
-    % (current)  AutoFolderAverageBB: loads normalized AND preproc data
-    % (uses pre-proc data to load EventsST, tt, and all_channels which is 
-    % not included in New_Mbb_Norm)
+%There are four versions of this script
+    
+    % RECOMMENDED:
 
-    % NormAutoFolderAverageBB: Only loads normalized (EventsST, tt, and 
-    % all_channels are within the normalized data upload)
+    % ImageFolderAnalysis_SubjectLoop: Can analyze multiple subject.
+    
+    % ImageFolderAnalysis: Cannot analyze multiple subjects, but it
+    % is faster when analyzing a single subject
 
-    % ImageFolderAnalysis: Same as NormAutoFolderAverageBB, but organized
-    % better and easier to understand
+    % NOT RECOMMENDED:
+    
+    % NormAutoFolderAverageBB: Cannot find d' and can only use folders of
+    % images (not the excel file columns)
+
+    % (current) AutoFolderAverageBB: Same as NormAutoFolderAverageBB, but it loads normalized 
+    % AND preproc data (uses pre-proc data to load EventsST, tt, and all_channels 
+    % which is not included in New_Mbb_Norm)
 
 clear;
+%% The variables below change how the code runs
 
 localDataPath = setLocalDataPath(1);
 
@@ -27,17 +34,22 @@ input = localDataPath.BBData;
 imageFolderPath = localDataPath.imFolders;
 
 
+% PLOTTING VALUES:
 % 1 to plot BB values, 0 to skip (plot from graphttmin to graphttmax)
-plotBBvalues = 1;    
+plotBBvalues = 1;  
+% The minimum and maximum time values (x-axis)
 graphttmin = -0.1;
 graphttmax = 0.8;
 
+% FINDING THE MEAN:
 % 1 to find the mean of BB values over meanttmin to meanttmax, 0 to skip
-findmean = 1;         
+findmean = 1;  
+% Time frame for the mean  
 meanttmin = 0;
 meanttmax = 0.4;
 
-%folder to be averaged
+% SETTING THE VARIABLES:
+%folder to be averaged (Must be in the folder imageFolderPath)
 folderName =  {'Experiment6Food', 'Experiment6Random'};
 
 %Subject to be used
@@ -49,7 +61,8 @@ channel =  {"RLI3"};
 %Colors for each graph (in the same order as the list)
 colors = {'-k', '-g', '-k', '-c', '-m', '-y', '-k', '-b', '-g', '-r'};
 
-% 0 for all images in folder, 1 for all images in the 1000 besides what is in this folder
+% 0 for all images in the folders, 1 for all images in the 1000 besides what 
+% is in this folder
 NotFolder = 0;  
 
 

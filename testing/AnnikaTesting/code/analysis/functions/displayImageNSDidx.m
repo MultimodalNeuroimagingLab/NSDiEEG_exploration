@@ -6,13 +6,34 @@ function displayImageNSDidx(NSD_idx)
     localDataPath = setLocalDataPath(1);
 
     %full path of the 1000 images folders
-    imageFolderPath = localDataPath.stim;
+    imageFolderPath = fullfile(localDataPath.stim, 'shared1000/');
     
     if (isnumeric(NSD_idx))
          NSD_idx = num2str(NSD_idx);
 
     end
   
+    
+        
+    % adds the proper number of zeros to the NSD idx
+
+   if (str2double(NSD_idx) < 10)
+        NSDNumber = append('0000', num2str(NSD_idx));
+    
+    elseif (str2double(NSD_idx) < 100)
+        NSDNumber = append('000', num2str(NSD_idx));
+        
+    elseif (str2double(NSD_idx) < 1000)
+        NSDNumber = append('00', num2str(NSD_idx));
+            
+    elseif (str2double(NSD_idx) < 10000)
+        NSDNumber = append('0', num2str(NSD_idx));
+    
+    else
+        NSDNumber = num2str(NSD_idx);  
+    end
+
+
     
     %finds shared index and adds the proper number of zeros
     shared_idx = NSD2shared(NSD_idx);
@@ -28,28 +49,13 @@ function displayImageNSDidx(NSD_idx)
             
     else
         sharedNumber = num2str(shared_idx);
-            
-        
-    % adds the proper number of zeros to the NSD idx
-
-    if (str2double(NSD_idx) < 10)
-        sharedNumber = append('000', num2str(NSD_idx));
     
-    elseif (str2double(NSD_idx) < 100)
-        sharedNumber = append('00', num2str(NSD_idx));
-        
-    elseif (str2double(NSD_idx) < 1000)
-        sharedNumber = append('0', num2str(NSD_idx));
-            
-    else
-        sharedNumber = num2str(NSD_idx);
-            
     end
 
-    end
+    
 
     % Creates the name of the image
-    im_fname = append('shared', sharedNumber, '_nsd', NSD_idx, '.png');
+    im_fname = append('shared', sharedNumber, '_nsd', NSDNumber, '.png');
             
     %Finds and shows the image
     imshow(imread(fullfile(imageFolderPath, im_fname)))
