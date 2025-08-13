@@ -5,15 +5,21 @@ This is Annika's code folder to test differences in neural responses to action s
 Contained in this project is code to normalize data, compare groups of images,
 compare specific images, and many other functions.
 
-├── beforeAnalysis/             % Code to run before analyzing data (normalization, SNR)
 
-├── analysis/                   % Code to analyze the normalized broadband data
+- beforeAnalysis/             
+    - Code to run before analyzing data (normalization, SNR)
 
-├── old/                        % Old versions of code existing in another folder
+- analysis/                   
+    - Code to analyze the normalized broadband data (mean, d', plots, etc)
 
-├── external/                   % Code used in many functions, but not written by me
+- external/                   
+    - Code used in many functions, but not written by me
 
-├── README.md                   % This file
+- old/                        
+    - Older versions of code existing in another one of these folders
+
+- README.md                  
+    - This file
 
 
 
