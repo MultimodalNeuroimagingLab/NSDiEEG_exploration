@@ -1,7 +1,10 @@
 %% Display the top normalized broadband responsive images in different channels 
 %This is Annika's edited version of BB_withFigures written by someone else (Maybe Zeeshan, Morgan, or Lupita?).
-%Annika changed it to run on the new normalized data and added a way to
+%Annika changed it to run on the per-Run normalized data and added a way to
 %graph the 6 trials instead of the first instance of the 1000 images
+
+% Currently, this code will plot the top 20 images to view, along with
+% plotting the top ten broadband traces individually
 
 
 clear all; close all;
@@ -12,7 +15,7 @@ localDataPath = setLocalDataPath(1);
 input = localDataPath.BBData;
 
 %path to the folders of different types of images
-imageFolderPath = localDataPath.imFolders;
+imageFolderPath = localDataPath.stim;
 shared1000folder = fullfile(imageFolderPath, 'shared1000');
 
 
@@ -24,27 +27,31 @@ ss = 1;
 subj = subjects{ss};
 
 channels = {"LOC6", "LOC7","LOC8"};
-for1000 = 1; % 0 for 100 repeats, 1 for all 1000 images
+
+ % 0 for 100 repeats, 1 for all 1000 images
+for1000 = 0;
 
 %If average across all six trials (100 repeats): avgBB = 1 
 %If plot each individual trial (100 repeats): avgBB=0 
 avgBB=1;
 
 %% Loads Variables and NORMALIZED broadband data
-    
-% Choose an analysis type:
-desc_label = 'EachImage';
+    % Choose an analysis type:
+    desc_label = 'PerRun';
      
-% Load normalized NSD-iEEG-broadband data
-Path_Mbb_Norm = fullfile(input,'Mbb_Norm_vars', ['sub-' subj],...
-['sub-' subj '_normalizedMbb' desc_label '_ieeg.mat']);
-load(Path_Mbb_Norm)
+    % Load normalized NSD-iEEG-broadband data
+    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_perRun', ['sub-' subj],...
+    ['sub-' subj '_normalizedMbb' desc_label '_ieeg.mat']);
+    
+    fprintf("Loading Normalized Broadband Data...")
+    load(Path_Mbb_Norm)
+  
+    fprintf("Loading variables...")
+    % extract relevant information from events file:
+    sel_events = eventsST;
+    [events_status,nsd_idx,shared_idx,nsd_repeats] = ieeg_nsdParseEvents(sel_events);
 
-sel_events = eventsST;
-
-% extract relevant information from events file:
-[events_status,nsd_idx,shared_idx,nsd_repeats] = ieeg_nsdParseEvents(sel_events);
-
+    fprintf("Everything has loaded.")
 %%
 
 for cc = 1:length(channels)
@@ -58,7 +65,7 @@ for cc = 1:length(channels)
     shared_idxs = shared_idx(events1000idx); %Picture shared indices
     
     % 1000 BB signal
-    special1000 = squeeze(New_Mbb_Norm(channelIdx,:,events1000idx));
+    special1000 = squeeze(Mbb_Norm_perRun(channelIdx,:,events1000idx));
     special1000 = special1000(find(tt>=.0 & tt<=.5),:);
     special1000mean = mean(special1000, 1)';
     
@@ -81,7 +88,7 @@ for cc = 1:length(channels)
        % Graphs the BB response to the top ten images
         for i=1:10
             figure
-            plot(ttt,New_Mbb_Norm(channelIdx,find(tt>=-.2 & tt<=.8),maxBBPictures(i))); ylim([0,1]);hold on;
+            plot(ttt,Mbb_Norm_perRun(channelIdx,find(tt>=-.2 & tt<=.8),maxBBPictures(i))); ylim([0,1]);hold on;
             title(append("Image Number ", num2str(i), ", Electrode: ", channels{cc}))
         end
        
@@ -98,7 +105,7 @@ for cc = 1:length(channels)
         % 100 BB 
         for i=1:6 
             special100EventsIdx = find(nsd_repeats == i);
-            special100rep = squeeze(New_Mbb_Norm(channelIdx,:,special100EventsIdx));
+            special100rep = squeeze(Mbb_Norm_perRun(channelIdx,:,special100EventsIdx));
             special100rep = special100rep(find(tt>=.0 & tt<=.5),:);
             special100mean(i,:) = mean(special100rep, 1);
             special100IdxTest(i,:) = shared_idx(special100EventsIdx);
@@ -154,7 +161,7 @@ for cc = 1:length(channels)
                     end
 
                     %puts the current trial into new row
-                   BB_TrialsOfCurrentImage(trialnum,:) = New_Mbb_Norm(channelIdx,find(tt>=-.2 & tt<=.8),currentTrial_currentImage);
+                   BB_TrialsOfCurrentImage(trialnum,:) = Mbb_Norm_perRun(channelIdx,find(tt>=-.2 & tt<=.8),currentTrial_currentImage);
 
                 end
 
@@ -193,7 +200,7 @@ for cc = 1:length(channels)
 
                      % plot the BB avg
                     figure(Name="Image Number " + imageNum + ", Trial Number " + trialnum)
-                    plot(ttt,New_Mbb_Norm(channelIdx,find(tt>=-.2 & tt<=.8),currentTrial_currentImage)); ylim([0,1]);hold on;
+                    plot(ttt,Mbb_Norm_perRun(channelIdx,find(tt>=-.2 & tt<=.8),currentTrial_currentImage)); ylim([0,1]);hold on;
                     %title([i])
                 
                 

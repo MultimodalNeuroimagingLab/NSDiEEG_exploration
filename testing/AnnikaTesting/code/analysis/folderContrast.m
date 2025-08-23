@@ -1,8 +1,9 @@
 % Creates a list of mean contrasts of images in a folder, also lists the
-% mean contrast of the entire folder.
+% mean contrast of the entire folder. (Must have a list of contrast means
+% saved, use contrastMean.m first)
 
 %Folder of images to find the contrasts of
-foldername = 'Experiment6Buildings';
+foldername = 'NoHuman1';
 
 localDataPath = setLocalDataPath(1);
 

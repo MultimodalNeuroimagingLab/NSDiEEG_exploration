@@ -1,6 +1,7 @@
 %% Creates normalized data that is then stored in New_Mbb_Norm 
 % The data is normalized by each individual image shown (1530 times)
-% This is a version of newBBNormalization.m that uses a parfor loop.
+
+% This is the same as newBBNormalization_ParFor.m, except doesn't use a ParFor loop
 
 clear;
 
@@ -37,16 +38,11 @@ norm_time_interval = find(tt>-.1 & tt<0);
 % This is where the normal values will be stored 
 New_Mbb_Norm = zeros(size(Mbb_norm), 'single');
 
-%Sets the number of loops for the function
-chlength = length([all_channels.name]);
-imlength = length(shared_idx);
+for ch=1:length([all_channels.name]) 
 
-parfor ch=1:chlength
+    for im=1:length(shared_idx)
 
-    for im=1:imlength
-
-        % To check it is running properly
-        if rem(im, 100) == 0
+        if rem(im, 10) == 0
             fprintf('Channel: %d, Image: %d\n', ch, im);
         end
 

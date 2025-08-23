@@ -1,13 +1,13 @@
 %% Averages BB of a folder of images, graphs average BB, and finds the mean/peak  
 % This program averages the normalized broadband of images in a user-specified 
-% file. Then, it can either graph this broadband or take the mean. The graph  
-% and mean are between user-specified time points. This program can loop 
-% through multiple electrodes or folders.
+% file. Then, it can graph this broadband, find the d', and take the mean, 
+% median, and peak. These are calculated between user-specified time points. 
+% This program can loop through multiple electrodes or folders.
 
 %This is a version of ImageFolderAnalysis that can run through multiple
-%subjects. Further, it automatically calculates dprime values when there
-%are only two folders (The first folder will be the main folder and the 
-% second will be the "other" folder).
+%subjects. ImageFolderAnalysis is faster when doing one subject.
+
+%The error bars on the graph are one standard error
 
 
 clear;
@@ -17,8 +17,13 @@ localDataPath = setLocalDataPath(1);
 %path to the folder containing folders of different types of broadband data
 input = localDataPath.BBData;
 
+% (If using annotatedImages, this is unused)
 %path to the folders of different types of images
 imageFolderPath = localDataPath.imFolders;
+
+% (If using imagefolders, this is unused)
+%path to the folders of different types of images
+annotationsPath = localDataPath.imageAnnotations;
 
 %%
 % 1 to plot BB values, 0 to skip (plot from graphttmin to graphttmax)
@@ -31,22 +36,23 @@ findmean = 1;
 meanttmin = 0.15;
 meanttmax = 0.5;
 
-
-%folders of images to be averaged
-folderName = {'ManyPeople', 'PairPeople'};
+% 0 to find a folder of images to analyze, 1 to create indexes based off an
+% excel sheet
+annotatedImages = 0;
+%folders of images to analyze 
+folderName = {'MatchedInteraction2', 'NoHumanNoOutlier2'};
+%{'faceTowards','Human', 'Animal','Objects'};
 
 %Subject to be used
-subject= {'02', '13', '15',  '20', '21', '12'};
-%{'17', '05', '06', '07', '18', '19'};                      
+subject= {'02', '13', '15',  '20', '05', '06', '18'};                      
 
 %Channels to be tested
 %Put the channels from each subject into different rows.
-channel = ... 
-{["LG6", "LG7", "LG8", "LB6", "LB7", "LB8", "LC2" ...
+channel = {["LG6", "LG7", "LG8", "LB6", "LB7", "LB8", "LC2" ...
     "LC6", "LC7", "LT6", "LT7", "LT8", "LT9", ...
     "LOC6", "LOC7", "LOC8", "LOC1", "LOC2", "LOC3", "LOC4", "LOC5",...
     "LT2", "LT3", "LT4", "LT5"],... 
-    ["RLS1", "RLS2", "RLI1", "RLI2","RLI3","RLI4","RLI5","RLI6","RLM4", "RLM5", "RLM8","RLM9","RLM10",...
+     ["RLS1", "RLS2", "RLI1", "RLI2","RLI3","RLI4","RLI5","RLI6","RLM4", "RLM5", "RLM8","RLM9","RLM10",...
     "RT1", "RT2", "RT3", "RT4", "RT5", "RT6", "ROI6", "ROI7", ...
     "RPI1", "RPI2", "RPI3", "ROI1", "ROI2", "ROI5", "RPM1","RPM2","RPM3","RPM4",...
     "RPM5","RPM6","RPM7","RPM8","RPM9", "RPS1", "RPS2", "RPS3", "RPS4", "RPS5",...
@@ -55,39 +61,21 @@ channel = ...
     "RT3","RT5","RT10", "RPS1", "RPS2"],...
     ["LC5","LC6","LT2","LT3","LT4","LT5","LT7","LOC6","LOC7","LOC8","LOC9",...
 "LOC12", "LOC13","LD1", "LD2", "LD3", "LD4", "LD5", "LD6","LOC1", "LOC2", "LOC3"]...
-["LQ8","LQ9","LT5","LT6","LT7","LT8","LOT1","LOT2","LOT3","LOT4","LOT5","LPO4",...
-"LPO5","LPO6", "LPO3", "LPO2", "LPO1"]...
-["RT1","RT2","RT3", "RT4", "RT5", "RD6", "RD7", "RD8"]};
-%{
-{["RBC6","RBC7", "LOC1", "LOC2", "LOC3", "LOC4", "LOC5", "LOC6", "LOC7", "LOC8"],...
-    ["ROC3", "ROC4", "ROC5","ROC7", "ROC8", "ROC9", "ROC10", "ROC11",...
+["ROC3", "ROC4", "ROC5","ROC7", "ROC8", "ROC9", "ROC10", "ROC11",...
     "ROC12","RC4","RC5", "RC6", "RC7", "RC8","RPS3", "RPS4", "RPS5","RPS6"],...
     ["LOC6","LOC7","LOC8","LOC9", "LT1", "LT2", "LT3", "LT4","LT5", ...
     "LB11", "LB7", "LB8", "RD10", "ROC1", "ROC2", "ROC3", "ROC4", "ROC5","ROC7", ...
     "ROC8", "ROC9", "ROC10", "ROC11"],...
-    ["ROC1", "ROC2", "ROC3", "ROC4", "ROC5","ROC7", "ROC8", "ROC9", "ROC10", "ROC11",...
-    "ROC12", "ROC13", "RC7","RB7", "RB8", "RB9", "RB10", "RB11","RB12"],...
     ["LOc1", "LOc2", "LOc3", "LOc4", "LOc5", "LOc6","LOc7", "LOc8", "LOc9",...
     "LSL1", "LSL2","LSL3","LSL4","LSL5", "LSL6","LSL7","LSL8",...
-    "LSL9", "LSL10","LSL11","LSL12","LT2","LT3","LT4","LT5",...
-    "LT1","LT6", "LB6", "LB7", "LT7","LT8","LT9","LT10","LT11", "LT12","LT13"],...
-    ["LOC1", "LOC2", "LOC3","LOC4", "LOC5", "LB6", "LB7", "LOC6","LOC7","LOC8",...
-    "LOC9","LOC10","LOC11","LOC12"]};
-%}
-    
+    "LSL9", "LSL10","LSL11","LSL12","LT1","LT2","LT3","LT4","LT5",...
+    "LT6", "LB6", "LB7", "LT7","LT8","LT9","LT10","LT11"]};
 
-    %Colors for each graph (in the same order as the list)
 
+% Sets the colors of the error bars
 colors = {'-b', '-r', '-y', 'g'};
+% Colors for the legend so that they match the error bars
 legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00; 1.00, 1.00, 0.00; 0.00, 1.00, 0.00];
-%{
-colors = {'-b', 'g', '-c', '-m', '-r', '-y'};
-legendcolor = [0.00, 0.00, 1.00; 0.00, 1.00, 0.00; 0.00, 1.00, 1.00; ...
-    1.00, 0.00, 1.00; 1.00, 0.00, 0.00; 1.00, 1.00, 0.00];
-
-colors = {'-b', '-k', '-r' };
-legendcolor = [0.00, 0.00, 1.00; 0.00, 0.00, 0.00;1.00, 0.00, 0.00];
-%}
 
 
 %0 to create a separate graph for each electrode, 1 to graph all on one.
@@ -96,6 +84,13 @@ allElectrode = 0;
 % 0 for all images in folder, 1 for all images in the 1000 besides what is in this folder
 NotFolder = 0;  
 
+
+
+%If folders chosen are different sizes, input the number wanted from each
+%folder, and the code will select that many random images from the folder.
+%Max size is one less than the size of the smallest folder.
+%(Put 0 if the current folder size is fine)
+folderSize = 0;
 
 %% Loads Variables and NORMALIZED broadband data
 
@@ -179,7 +174,7 @@ for k=1:length(subject)
         if (allElectrode == 0) && (plotBBvalues == 1)
             figure;
         end
-    
+        %a = zeros(100,2)
         for j = 1:length(folderName)
         
             %States current folder
@@ -187,8 +182,9 @@ for k=1:length(subject)
             
             % Finds the average broadband values of the folder
             [folderBB, folderStE, imageBB] = BBAverageImageFolder(currentFolder,...
-                NotFolder, channelBBvalues, shared_idx, nsd_repeats, imageFolderPath, i);
-       
+                NotFolder, channelBBvalues, shared_idx, nsd_repeats, imageFolderPath, ...
+                annotatedImages, folderSize);
+            
             if findmean == 1 
                 % Finds the mean, max, and median from meanttmin to meanttmax
                 [BBmean,BBpeak, BBmedian] = BBmeanAndPeak(folderBB, meanttmin, meanttmax, tt);
@@ -219,10 +215,13 @@ for k=1:length(subject)
             end
            
            
-            %Calculates the d prime values
-            if length(folderName) == 2
+           % If there are two folders, the program will automatically
+           % calculate d'
+            if (length(folderName) == 2) 
+                 
+                %Calculates the d prime values
                 [dprime(i,k)] = DprimeFunction(folderName{1}, folderName{2}, channelidx, ...
-                    tt, shared_idx, Mbb, nsd_repeats, meanttmin, meanttmax);
+                    tt, shared_idx, Mbb, nsd_repeats, meanttmin, meanttmax, annotatedImages);
             end
             
         end
@@ -263,7 +262,8 @@ for k=1:length(subject)
             title(append("Folder Comparison, Subject-", subject{k}, ": multiple channels"))
         end
         ylim([-0.1,1]);
-        
+        %title(append("Folder Comparison, Subject-", subject{k}, ": multiple channels"))
+        %legend(folderName);
     end
 
 end

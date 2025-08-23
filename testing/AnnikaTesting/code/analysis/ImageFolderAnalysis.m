@@ -1,23 +1,30 @@
 %% Averages BB of a folder of images, graphs average BB, and finds the mean/peak  
-% This program averages the normalized broadband of images in a user-specified 
-% file. Then, it can either graph this broadband or take the mean. The graph  
-% and mean are between user-specified time points. This program can loop 
+% This program averages the normalized broadband of an image category in a user-specified 
+% electrode. Then, it can graph this broadband, find the d', and take the mean,
+% peak, and median over a specified time frame. This program can loop 
 % through multiple electrodes or folders.
 
 %There are four versions of this script
-    % AutoFolderAverageBB: loads normalized AND preproc data
-    % (uses pre-proc data to load EventsST, tt, and all_channels which is 
-    % not included in New_Mbb_Norm)
-
-    % NormAutoFolderAverageBB: Only loads normalized (EventsST, tt, and all_channels 
-    % are within the normalized data upload)
-
-    % (current) ImageFolderAnalysis: Same as NormAutoFolderAverageBB, but organized
-    % better and easier to understand
-
+    
     % RECOMMENDED:
-    % ImageFolderAnalysis_SubjectLoop: Same as ImageFolderAnalysis, but 
-    % is able to loop through multiple subjects. It can also calculates d'
+
+    % ImageFolderAnalysis_SubjectLoop: Can analyze multiple subject.
+    
+    % (current) ImageFolderAnalysis: Cannot analyze multiple subjects, but it
+    % is faster when analyzing a single subject
+
+    % NOT RECOMMENDED:
+    
+    % NormAutoFolderAverageBB: Cannot find d' and can only use folders of
+    % images (not the excel file columns)
+
+    % AutoFolderAverageBB: Same as NormAutoFolderAverageBB, but it loads normalized 
+    % AND preproc data (uses pre-proc data to load EventsST, tt, and all_channels 
+    % which is not included in New_Mbb_Norm)
+
+    
+%The error bars on the graph are one standard error
+
 
 
 clear;
@@ -27,9 +34,13 @@ localDataPath = setLocalDataPath(1);
 %path to the folder containing folders of different types of broadband data
 input = localDataPath.BBData;
 
+% (If using annotatedImages, this is unused)
 %path to the folders of different types of images
 imageFolderPath = localDataPath.imFolders;
 
+% (If using imagefolders, this is unused)
+%path to the folders of different types of images
+annotationsPath = localDataPath.imageAnnotations;
 %%
 % 1 to plot BB values, 0 to skip (plot from graphttmin to graphttmax)
 plotBBvalues = 1;    
@@ -38,34 +49,22 @@ graphttmax = 0.8;
 
 % 1 to find mean of BB values over meanttmin to meanttmax, 0 to skip
 findmean = 1;         
-meanttmin = 0.4;
-meanttmax = 0.8;
+meanttmin = 0.15;
+meanttmax = 0.5;
 
 
 %folders of images to be averaged
-folderName = {'People', 'NoPeople'};
+folderName = {'NoHuman1',	'NoHuman2'};
 
 %Subject to be used
-subject='15';                      
+subject='05';                      
 
 %Channels to be tested
-channel = {"RPO1","RPO2","RPO3","RPO4","RPO5","RPA1","RPA2","RPA3","RPA4","RPA5"};
+channel = {"ROC10", "ROC11"};
 
-%Colors for each graph (in the same order as the list)
-colors = {'-b', '-r'};
-legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00];
-%{
+%Colors for each graph, due to the error bar function (same order as the list)
 colors = {'-b', '-r', '-y', 'g'};
 legendcolor = [0.00, 0.00, 1.00;1.00, 0.00, 0.00; 1.00, 1.00, 0.00; 0.00, 1.00, 0.00];
-
-colors = {'-b', 'g', '-c', '-m', '-r', '-y'};
-legendcolor = [0.00, 0.00, 1.00; 0.00, 1.00, 0.00; 0.00, 1.00, 1.00; ...
-    1.00, 0.00, 1.00; 1.00, 0.00, 0.00; 1.00, 1.00, 0.00];
-
-colors = {'-b', '-k', '-r' };
-legendcolor = [0.00, 0.00, 1.00; 0.00, 0.00, 0.00;1.00, 0.00, 0.00];
-%}
-
 
 %0 to create a separate graph for each electrode, 1 to graph all on one.
 allElectrode = 0;
@@ -73,6 +72,15 @@ allElectrode = 0;
 % 0 for all images in folder, 1 for all images in the 1000 besides what is in this folder
 NotFolder = 0;  
 
+% 0 to find a folder of images to analyze, 1 to create indexes based off an
+% excel sheet
+annotatedImages = 0;
+
+%If folders chosen are different sizes, input the number wanted from each
+%folder, and the code will select that many random images from the folder.
+%Max size is one less than the size of the smallest folder.
+%(Put 0 if the current folder size is fine)
+folderSize = 0;
 
 %% Loads Variables and NORMALIZED broadband data
     
@@ -80,7 +88,7 @@ NotFolder = 0;
     desc_label = 'PerRun';
      
     % Load normalized NSD-iEEG-broadband data
-    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_PerRun', ['sub-' subject],...
+    Path_Mbb_Norm = fullfile(input,'Mbb_Norm_perRun', ['sub-' subject],...
     ['sub-' subject '_normalizedMbb' desc_label '_ieeg.mat']);
     
     fprintf("Loading Normalized Broadband Data...")
@@ -103,9 +111,14 @@ meanresults = zeros(length(channel), length(folderName));
 %Stores peak results, columns are folders and rows are electrodes
 peakresults = zeros(length(channel), length(folderName));
 
+% Preallocates the size of the dprime folder
+if length(folderName) == 2
+    dprime = zeros(length(channel), 1);
+end
 
 % Calls the folderAverageBBfunction for each given electrode and folder
 for i = 1:length(channel)
+
     % States which channel it is currently processing
     currentchannel = channel{i}
     
@@ -126,7 +139,8 @@ for i = 1:length(channel)
         
         % Finds the average broadband values of the folder
         [folderBB, folderStE, imageBB] = BBAverageImageFolder(currentFolder,...
-            NotFolder, channelBBvalues, shared_idx,nsd_repeats, imageFolderPath);
+            NotFolder, channelBBvalues, shared_idx,nsd_repeats, imageFolderPath,...
+            annotatedImages, folderSize);
         
         % Stores the average normalized BB values and standard error of the current folder
         % Every row is a different folder and every column is a time
@@ -135,6 +149,7 @@ for i = 1:length(channel)
 
 
         if findmean == 1 
+
             % Finds the mean from meanttmin to meanttmax
             [BBmean,BBpeak, BBmedian] = BBmeanAndPeak(folderBB, meanttmin, meanttmax, tt);
             
@@ -162,6 +177,16 @@ for i = 1:length(channel)
             % standard error)
             plotBB(folderBB, folderStE, graphttmin, graphttmax, currentcolor, tt)
 
+        end
+
+        % If there are two folders, the program will automatically
+        % calculate d'
+        if (length(folderName) == 2) 
+             
+            %Calculates the d prime values
+            [dprime(i)] = DprimeFunction(folderName{1}, folderName{2}, channelidx, ...
+                tt, shared_idx, Mbb_Norm_perRun, nsd_repeats, meanttmin, meanttmax, ...
+                annotatedImages);
         end
 
     end
@@ -201,5 +226,7 @@ for i = 1:length(channel)
         title(append("Folder Comparison, Subject-", subject, ": multiple channels"))
     end
     ylim([-0.1,1]);
+    %title(append("Folder Comparison, Subject-", subject, ": ", currentchannel))
+    %legend(folderName);
 end
 
